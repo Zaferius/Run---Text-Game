@@ -4,19 +4,34 @@ const titleScreen = document.getElementById("title-screen");
 const gameScreen = document.getElementById("game-screen");
 const startButton = document.getElementById("start-button");
 
+// Input kontrolü
+let inputEnabled = true;
+
+function disableInput() {
+    input.disabled = true;
+    inputEnabled = false;
+}
+
+function enableInput() {
+    input.disabled = false;
+    inputEnabled = true;
+    input.focus();
+}
+
 startButton.addEventListener("click", () => {
     titleScreen.style.display = "none";
     gameScreen.style.display = "block";
     input.focus();
+    startIntro();
 });
 
 // === Oyun Durumu ===
 const gameState = {
-    sandikAcildi: false,
-    anahtarAlindi: false,
-    kapiAcildi: false
+    makasAlindi: false,
+    kapidanCikildi: false
 };
 
+// === Bilinmeyen komut cevaplari ===
 const unknownCommandResponses = [
     "Bu komutu anlayamadim.",
     "Ne? tekrar dene.",
@@ -26,54 +41,65 @@ const unknownCommandResponses = [
     "Hayir, bunu yapamazsin."
 ];
 
+// === Giris Hikayesi ===
+function startIntro() {
+    const intro = [
+        "Gozlerini actiginda tavandaki florasanlar titriyor.",
+        "Soguk bir hastane odasindasin. Vucudun sargilarla kapli.",
+        "Kapinin arkasindan insan gibi ama degil gibi bir ciglik duyuluyor.",
+        "Basini toparlayip yataktan kalkiyorsun...",
+        "Yanimda bir makas var. Belki isime yarar.",
+        "Ne yapmak istersin?"
+    ];
+
+    writeSystemSequence(intro, 15, 2000);
+}
+
 // === Komutlar Tanimi ===
 const commands = [
     {
-        keywords: ["sex", "seks", "sikis", "parti", "porno", "hayir"],
+        keywords: ["makas al", "al makas"],
         action: () => {
-                writeSystem("Yapma ya. Fazla komiksin. Simarma.");
-        }
-    },
-
-
-    {
-        keywords: ["sandik ac", "ac sandik", "sandigi ac"],
-        action: () => {
-            if (!gameState.sandikAcildi) {
-                gameState.sandikAcildi = true;
-                gameState.anahtarAlindi = true;
-                writeSystem("Sandigi actin. Icinde pasli bir anahtar buldun.");
+            if (!gameState.makasAlindi) {
+                gameState.makasAlindi = true;
+                writeSystem("Makas artik sende. Sivri ve pasli. Bir silah gibi kullanabilirsin.");
             } else {
-                writeSystem("Sandik zaten acildi. Icindeki anahtari aldin.");
+                writeSystem("Makas zaten elinde.");
             }
         }
     },
     {
-        keywords: ["kapi ac", "ac kapi", "kapiyi ac"],
+        keywords: ["kapi ac", "ac kapi", "disari cik", "koridora cik"],
         action: () => {
-            if (!gameState.kapiAcildi) {
-                if (gameState.anahtarAlindi) {
-                    gameState.kapiAcildi = true;
-                    writeSystem("Anahtari kullandin. Kapi acildi! Bir sonraki odaya geciyorsun...");
+            if (!gameState.kapidanCikildi) {
+                gameState.kapidanCikildi = true;
+                if (gameState.makasAlindi) {
+
+                    const out1 = [
+                        "Kapiyi araliyorsun... Disarida karanlik bir koridor, yerde kan izleri. Makasini daha sikiyorsun...",
+                        "Bir ses yaklasiyor... NE YAPACAKSIN?"
+                    ];
+
+                    writeSystemSequence(out1, 40, 2000);
                 } else {
-                    writeSystem("Kapi kilitli. Anahtara ihtiyacin var.");
+                    writeSystem("Disari cikmaya calisiyorsun ama kendini koruyacak bir sey olmadan bu cok riskli.");
                 }
             } else {
-                writeSystem("Kapi zaten acik.");
+                writeSystem("Zaten koridordasin. Sesler yaklasiyor...");
             }
         }
     },
     {
-        keywords: ["anahtar kullan", "kullan anahtar", "anahtari kullan"],
+        keywords: ["bagir", "yardim", "imdat"],
         action: () => {
-            if (gameState.anahtarAlindi && !gameState.kapiAcildi) {
-                gameState.kapiAcildi = true;
-                writeSystem("Anahtari kullandin. Kapi acildi!");
-            } else if (gameState.kapiAcildi) {
-                writeSystem("Kapi zaten acik.");
-            } else {
-                writeSystem("Elinde anahtar yok.");
-            }
+            writeSystem("Bagiriyorsun... ama bu hataydi.");
+            writeSystem("Sesler daha hizli yaklasiyor. Simdi ne yapacaksin?");
+        }
+    },
+    {
+        keywords: ["sex", "seks", "sikis", "porno", "hayir"],
+        action: () => {
+            writeSystem("Yapma ya. Fazla komiksin. Simarma.");
         }
     }
 ];
@@ -99,8 +125,10 @@ function handleCommand(cmd) {
     }
 }
 
-// === Yazdirma Fonksiyonlari ===
-function writeSystem(text, speed = 35) {
+// === Sistem Yazdirma ===
+function writeSystem(text, speed = 35, onComplete = null) {
+    disableInput();
+
     const line = document.createElement("div");
     line.classList.add("system-message");
     output.appendChild(line);
@@ -114,12 +142,37 @@ function writeSystem(text, speed = 35) {
             setTimeout(typeNextChar, speed);
         } else {
             window.scrollTo(0, document.body.scrollHeight);
+            if (onComplete) {
+                setTimeout(onComplete, 100); // biraz gecikme ile
+            } else {
+                enableInput();
+            }
         }
     }
 
     typeNextChar();
 }
 
+// === Coklu Sistem Mesaji (satir satir yaz) ===
+function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500) {
+    disableInput();
+    let index = 0;
+
+    function writeNextLine() {
+        if (index < lines.length) {
+            writeSystem(lines[index], speed, () => {
+                index++;
+                setTimeout(writeNextLine, delayBetweenLines);
+            });
+        } else {
+            enableInput();
+        }
+    }
+
+    writeNextLine();
+}
+
+// === Oyuncu Yazisi ===
 function writePlayer(text) {
     const line = document.createElement("div");
     line.classList.add("player-input");
@@ -129,8 +182,8 @@ function writePlayer(text) {
 }
 
 // === Input Dinleme ===
-input.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
+input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && inputEnabled) {
         const command = input.value.trim().toLowerCase();
         writePlayer(command);
         input.value = "";
