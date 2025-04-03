@@ -52,7 +52,7 @@ function startIntro() {
         "Ne yapmak istersin?"
     ];
 
-    writeSystemSequence(intro, 15, 2000);
+    writeSystemSequence(intro, 15, 3);
 }
 
 // === Komutlar Tanimi ===
@@ -62,7 +62,15 @@ const commands = [
         action: () => {
             if (!gameState.makasAlindi) {
                 gameState.makasAlindi = true;
-                writeSystem("Makas artik sende. Sivri ve pasli. Bir silah gibi kullanabilirsin.");
+
+                const sciorOwned = [
+                    "Makas artik sende, sivri ve pasli",
+                    "Bir silah gibi kullanabilirsin"
+                ];
+
+                writeSystemSequence(sciorOwned, 40, 500);
+
+
             } else {
                 writeSystem("Makas zaten elinde.");
             }
@@ -80,7 +88,7 @@ const commands = [
                         "Bir ses yaklasiyor... NE YAPACAKSIN?"
                     ];
 
-                    writeSystemSequence(out1, 40, 2000);
+                    writeSystemSequence(out1, 40, 500);
                 } else {
                     writeSystem("Disari cikmaya calisiyorsun ama kendini koruyacak bir sey olmadan bu cok riskli.");
                 }
