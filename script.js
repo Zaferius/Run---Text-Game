@@ -17,8 +17,25 @@ const gameState = {
     kapiAcildi: false
 };
 
+const unknownCommandResponses = [
+    "Bu komutu anlayamadim.",
+    "Ne? tekrar dene.",
+    "Yapamazsin öyle bir sey.",
+    "Bunu yapamazsin.",
+    "Sacmalama.",
+    "Hayir, bunu yapamazsin."
+];
+
 // === Komutlar Tanimi ===
 const commands = [
+    {
+        keywords: ["sex", "seks", "sikis", "parti", "porno", "hayir"],
+        action: () => {
+                writeSystem("Yapma ya. Fazla komiksin. Simarma.");
+        }
+    },
+
+
     {
         keywords: ["sandik ac", "ac sandik", "sandigi ac"],
         action: () => {
@@ -77,12 +94,13 @@ function handleCommand(cmd) {
     }
 
     if (!matched) {
-        writeSystem("Bu komutu anlayamadim.");
+        const randomMessage = unknownCommandResponses[Math.floor(Math.random() * unknownCommandResponses.length)];
+        writeSystem(randomMessage);
     }
 }
 
 // === Yazdirma Fonksiyonlari ===
-function writeSystem(text, speed = 50) {
+function writeSystem(text, speed = 35) {
     const line = document.createElement("div");
     line.classList.add("system-message");
     output.appendChild(line);

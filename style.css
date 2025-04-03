@@ -1,7 +1,7 @@
 body {
     background-color: black;
     color: white;
-    font-family: monospace;
+    font-family: 'Times New Roman', Times, serif;
     padding: 20px;
     text-align: center;
 }
@@ -37,6 +37,8 @@ h1 {
     min-height: 300px;
     margin-bottom: 10px;
     color: red;
+    font-weight: bold;
+    font-size: 18px;
 }
 
 #input {
@@ -51,8 +53,13 @@ h1 {
 
 .system-message {
     color: red;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .player-input {
-    color: white;
+    color: rgb(209, 209, 209);
+    font-weight: normal;
+    font-size: 16px;
+    
 }
