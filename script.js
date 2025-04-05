@@ -88,10 +88,10 @@ const gameState = {
 };
 
 const keywordColors = {
-    "makas": "keyword-yellow keyword-glow",
-    "kapi": "keyword-yellow keyword-glow",
+    "bagir" : "keyword-orange keyword-glow",
+    "makas": "keyword-orange keyword-glow",
+    "kapi": "keyword-orange keyword-glow",
     "kan": "keyword-red",
-    "anahtar": "keyword-yellow"
     // İstersen buraya devamını ekleyebilirsin
 };
 
@@ -150,6 +150,7 @@ const commands = [
                     "Disarida karanlik bir koridor, yerde kan izleri.",
                     "...",
                     "Bir ses yaklasiyor...",
+                    "Bagirmak istiyorum!",
                     "NE YAPACAKSIN?"
                 ];
 
@@ -164,20 +165,49 @@ const commands = [
         }
     },
     {
-        keywords: ["bagir", "yardim", "imdat"],
-        action: () => {
+        keywords: ["bagir", "kac", "kos", "arkana don", "geri kos", "geri don"],
+        action: (cmd) => {
             if (gameState.stage === 2) {
-                const out2 = [
-                    "Bagiriyorsun... ama bu hataydi.",
-                    " ",
-                    "Sesler yaklasiyor... NE YAPACAKSIN?"
-                ];
-                writeSystemSequence(out2, 40, 500);
-            } else {
-                writeSystem("Su an bagirmak istemezsin.");
+               
+                if (cmd.includes("bagir")) {
+                    const out3 = [
+                        "Bagiriyorsun... ama bu hataydi.",
+                        " ",
+                        "Sesler yaklasiyor... NE YAPACAKSIN?"
+                    ];
+                    writeSystemSequence(out3, 40, 500);
+                } 
+                 else if (cmd.includes("kac") 
+                    || cmd.includes("kos") 
+                    || cmd.includes("arkana don") 
+                    || cmd.includes("geri kos") 
+                    || cmd.includes("geri don") ) {
+                    gameState.stage = 3;
+                    writeSystemSequence([
+                        "Kosmaya basliyorsun... koridordan geciyorsun...",
+                        "Zemin kaygan... bir noktada sendeleyebilirsin.",
+                        "Karanlikta hizli kararlar vermek zorundasin.",
+                        "Sola donen bir kapali kapi... saga acik bir kapi... hangisi?"
+                    ], 35, 1800);
+
             }
         }
     },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     {
         keywords: ["ilerleme", "durum"],
@@ -200,7 +230,7 @@ function handleCommand(cmd) {
     for (const command of commands) {
         for (const keyword of command.keywords) {
             if (cmd.includes(keyword)) {
-                command.action();
+                command.action(cmd); // ← cmd'yi action fonksiyonuna gönderiyoruz
                 matched = true;
                 break;
             }
