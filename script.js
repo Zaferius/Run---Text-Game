@@ -27,8 +27,17 @@ startButton.addEventListener("click", () => {
 
 // === Oyun Durumu ===
 const gameState = {
-    makasAlindi: false,
-    kapidanCikildi: false
+    stage: 0 // 0: uyanis, 
+    // 1: makas alindi,
+    // 2: kapidan cikildi,
+    // 3+: yeni bolumler
+    // 3+: yeni bolumler
+    // 3+: yeni bolumler
+    // 3+: yeni bolumler
+    // 3+: yeni bolumler
+    // 3+: yeni bolumler
+    // 3+: yeni bolumler
+    
 };
 
 // === Bilinmeyen komut cevaplari ===
@@ -45,53 +54,47 @@ const unknownCommandResponses = [
 function startIntro() {
     const intro = [
         "Gozlerini actiginda tavandaki florasanlar titriyor.",
-        "Soguk bir hastane odasindasin. Vucudun sargilarla kapli.",
-        "Kapinin arkasindan insan gibi ama degil gibi bir ciglik duyuluyor.",
+        "Soguk bir hastane odasindasin. Kafan sargilarla kapli.",
+        "Kapinin arkasindan insan disi bir ciglik duyuluyor.",
         "Basini toparlayip yataktan kalkiyorsun...",
         "Yanimda bir makas var. Belki isime yarar.",
+        " ",
+        " ",
         "Ne yapmak istersin?"
     ];
 
-    writeSystemSequence(intro, 15, 3);
+    writeSystemSequence(intro, 15, 400);
 }
 
 // === Komutlar Tanimi ===
 const commands = [
     {
-        keywords: ["makas al", "al makas"],
+        keywords: ["makas al", "al makas", "makasi al", "al makasi"],
         action: () => {
-            if (!gameState.makasAlindi) {
-                gameState.makasAlindi = true;
-
-                const sciorOwned = [
+            if (gameState.stage === 0) {
+                gameState.stage = 1;
+                const scissorOwned = [
                     "Makas artik sende, sivri ve pasli",
                     "Bir silah gibi kullanabilirsin"
                 ];
-
-                writeSystemSequence(sciorOwned, 40, 500);
-
-
-            } else {
+                writeSystemSequence(scissorOwned, 40, 500);
+            } else if (gameState.stage > 0) {
                 writeSystem("Makas zaten elinde.");
             }
         }
     },
     {
-        keywords: ["kapi ac", "ac kapi", "disari cik", "koridora cik"],
+        keywords: ["kapiyi ac", "ac kapiyi", "disari cik", "koridora cik"],
         action: () => {
-            if (!gameState.kapidanCikildi) {
-                gameState.kapidanCikildi = true;
-                if (gameState.makasAlindi) {
-
-                    const out1 = [
-                        "Kapiyi araliyorsun... Disarida karanlik bir koridor, yerde kan izleri. Makasini daha sikiyorsun...",
-                        "Bir ses yaklasiyor... NE YAPACAKSIN?"
-                    ];
-
-                    writeSystemSequence(out1, 40, 500);
-                } else {
-                    writeSystem("Disari cikmaya calisiyorsun ama kendini koruyacak bir sey olmadan bu cok riskli.");
-                }
+            if (gameState.stage === 1) {
+                gameState.stage = 2;
+                const out1 = [
+                    "Kapiyi araliyorsun... Disarida karanlik bir koridor, yerde kan izleri. Makasini daha sikiyorsun...",
+                    "Bir ses yaklasiyor... NE YAPACAKSIN?"
+                ];
+                writeSystemSequence(out1, 40, 500);
+            } else if (gameState.stage < 1) {
+                writeSystem("Disari cikmaya calisiyorsun ama kendini koruyacak bir sey olmadan bu cok riskli.");
             } else {
                 writeSystem("Zaten koridordasin. Sesler yaklasiyor...");
             }
@@ -100,8 +103,22 @@ const commands = [
     {
         keywords: ["bagir", "yardim", "imdat"],
         action: () => {
-            writeSystem("Bagiriyorsun... ama bu hataydi.");
-            writeSystem("Sesler daha hizli yaklasiyor. Simdi ne yapacaksin?");
+            if (gameState.stage === 2) {
+                const out2 = [
+                    "Bagiriyorsun... ama bu hataydi.",
+                    " ",
+                    "Sesler yaklasiyor... NE YAPACAKSIN?"
+                ];
+                writeSystemSequence(out2, 40, 500);
+            } else {
+                writeSystem("Su an bagirmak istemezsin.");
+            }
+        }
+    },
+    {
+        keywords: ["ilerleme", "durum"],
+        action: () => {
+            writeSystem("Mevcut oyun asamasi: " + gameState.stage);
         }
     },
     {
