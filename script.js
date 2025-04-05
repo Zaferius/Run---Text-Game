@@ -19,11 +19,58 @@ function enableInput() {
 }
 
 startButton.addEventListener("click", () => {
-    titleScreen.style.display = "none";
-    gameScreen.style.display = "block";
-    input.focus();
-    startIntro();
+    
+    // 2. sonra fade-out başlasın
+    setTimeout(() => {
+        fade.style.opacity = 1;
+    }, 100); // minik gecikme
+
+    // 3. intro yazılarını başlat (fade bittikten sonra)
+    setTimeout(() => {
+        fade.style.opacity = 0;
+        titleScreen.style.display = "none";
+        gameScreen.style.display = "block";
+        input.focus();
+        startAmbientMusic("sounds/ambient.mp3");
+        startIntro();
+    }, 2000); // fade süresi kadar bekle
+    
 });
+
+
+let ambientMusic = null;
+
+function startAmbientMusic(path) {
+    ambientMusic = new Audio(path);
+    ambientMusic.loop = true;
+    ambientMusic.volume = 0.2; // 0.0 - 1.0 arası (kısık ses)
+    ambientMusic.play();
+}
+
+function stopAmbientMusic() {
+    if (ambientMusic) {
+        ambientMusic.pause();
+        ambientMusic.currentTime = 0;
+    }
+}
+
+function playSoundFromFile(path, delay = 0, volume = 1) {
+    setTimeout(() => {
+        const audio = new Audio(path);
+        audio.currentTime = 0;
+        audio.volume = volume;
+        audio.play();
+    }, delay);
+}
+
+function triggerGlitch(duration = 1000) {
+    const screen = document.getElementById("game-screen");
+    screen.classList.add("glitch-active");
+
+    setTimeout(() => {
+        screen.classList.remove("glitch-active");
+    }, duration);
+}
 
 // === Oyun Durumu ===
 const gameState = {
@@ -37,7 +84,15 @@ const gameState = {
     // 3+: yeni bolumler
     // 3+: yeni bolumler
     // 3+: yeni bolumler
-    
+
+};
+
+const keywordColors = {
+    "makas": "keyword-yellow keyword-glow",
+    "kapi": "keyword-yellow keyword-glow",
+    "kan": "keyword-red",
+    "anahtar": "keyword-yellow"
+    // İstersen buraya devamını ekleyebilirsin
 };
 
 // === Bilinmeyen komut cevaplari ===
@@ -53,6 +108,7 @@ const unknownCommandResponses = [
 // === Giris Hikayesi ===
 function startIntro() {
     const intro = [
+        " ",
         "Gozlerini actiginda tavandaki florasanlar titriyor.",
         "Soguk bir hastane odasindasin. Kafan sargilarla kapli.",
         "Kapinin arkasindan insan disi bir ciglik duyuluyor.",
@@ -63,7 +119,7 @@ function startIntro() {
         "Ne yapmak istersin?"
     ];
 
-    writeSystemSequence(intro, 15, 400);
+    writeSystemSequence(intro, 30, 400);
 }
 
 // === Komutlar Tanimi ===
@@ -77,6 +133,7 @@ const commands = [
                     "Makas artik sende, sivri ve pasli",
                     "Bir silah gibi kullanabilirsin"
                 ];
+                playSoundFromFile("sounds/knife-draw.wav",0,0.05);
                 writeSystemSequence(scissorOwned, 40, 500);
             } else if (gameState.stage > 0) {
                 writeSystem("Makas zaten elinde.");
@@ -89,10 +146,16 @@ const commands = [
             if (gameState.stage === 1) {
                 gameState.stage = 2;
                 const out1 = [
-                    "Kapiyi araliyorsun... Disarida karanlik bir koridor, yerde kan izleri. Makasini daha sikiyorsun...",
-                    "Bir ses yaklasiyor... NE YAPACAKSIN?"
+                    "Kapiyi araliyorsun...",
+                    "Disarida karanlik bir koridor, yerde kan izleri.",
+                    "...",
+                    "Bir ses yaklasiyor...",
+                    "NE YAPACAKSIN?"
                 ];
-                writeSystemSequence(out1, 40, 500);
+
+                playSoundFromFile("sounds/door-opening_closing.wav",0,0.3);
+
+                writeSystemSequence(out1, 40, 2000);
             } else if (gameState.stage < 1) {
                 writeSystem("Disari cikmaya calisiyorsun ama kendini koruyacak bir sey olmadan bu cok riskli.");
             } else {
@@ -115,6 +178,7 @@ const commands = [
             }
         }
     },
+
     {
         keywords: ["ilerleme", "durum"],
         action: () => {
@@ -150,7 +214,6 @@ function handleCommand(cmd) {
     }
 }
 
-// === Sistem Yazdirma ===
 function writeSystem(text, speed = 35, onComplete = null) {
     disableInput();
 
@@ -159,24 +222,46 @@ function writeSystem(text, speed = 35, onComplete = null) {
     output.appendChild(line);
 
     let i = 0;
-
     function typeNextChar() {
-        if (i < text.length) {
-            line.innerText += text.charAt(i);
-            i++;
-            setTimeout(typeNextChar, speed);
-        } else {
+        if (i >= text.length) {
             window.scrollTo(0, document.body.scrollHeight);
             if (onComplete) {
-                setTimeout(onComplete, 100); // biraz gecikme ile
+                setTimeout(onComplete, 100);
             } else {
                 enableInput();
             }
+            return;
         }
+
+        // Anahtar kelime kontrolü
+        for (const keyword in keywordColors) {
+            const keywordLower = keyword.toLowerCase();
+            const segment = text.substring(i, i + keyword.length).toLowerCase();
+
+            if (segment === keywordLower) {
+                const span = document.createElement("span");
+                keywordColors[keyword].split(" ").forEach(cls => span.classList.add(cls));
+                span.textContent = text.substring(i, i + keyword.length);
+                line.appendChild(span);
+                i += keyword.length;
+                setTimeout(typeNextChar, speed);
+                return;
+            }
+        }
+
+        // Anahtar kelime yoksa normal harf ekle
+        const charSpan = document.createElement("span");
+        charSpan.textContent = text.charAt(i);
+        line.appendChild(charSpan);
+        i++;
+        setTimeout(typeNextChar, speed);
     }
 
     typeNextChar();
 }
+
+
+
 
 // === Coklu Sistem Mesaji (satir satir yaz) ===
 function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500) {
