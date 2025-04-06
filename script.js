@@ -87,12 +87,27 @@ const gameState = {
 
 };
 
-const keywordColors = {
-    "bagir" : "keyword-orange keyword-glow",
-    "makas": "keyword-orange keyword-glow",
-    "kapi": "keyword-orange keyword-glow",
-    "kan": "keyword-red",
-    // İstersen buraya devamını ekleyebilirsin
+function getKeywordClass(word) {
+    const info = keywordColorsConfig[word.toLowerCase()];
+    if (!info) return null;
+
+    // Eğer sahne tanımlıysa ve şu anki sahnedeysek uygula
+    if (info.stage === undefined || gameState.stage === info.stage) {
+        return info.class;
+    }
+
+    return null;
+}
+
+const keywordColorsConfig = {
+    "bagir": { stage: 2, class: "keyword-orange keyword-glow" },
+    "makas": { stage: 0, class: "keyword-orange keyword-glow" },
+    "kapi": { stage: 0, class: "keyword-orange keyword-glow" },
+    "bekle": { stage: 2, class: "keyword-orange keyword-glow" },
+    "sola": { stage: 3, class: "keyword-orange keyword-glow" },
+    "saga": { stage: 3, class: "keyword-orange keyword-glow" },
+    "kac": { stage: 2, class: "keyword-orange keyword-glow" },
+    "kan": { stage: 2, class: "keyword-red" }
 };
 
 // === Bilinmeyen komut cevaplari ===
@@ -150,13 +165,20 @@ const commands = [
                     "Disarida karanlik bir koridor, yerde kan izleri.",
                     "...",
                     "Bir ses yaklasiyor...",
-                    "Bagirmak istiyorum!",
-                    "NE YAPACAKSIN?"
+                    "Nedir bu?",
+                    "Beklemeli miyim yoksa kacmali miyim...."
                 ];
 
                 playSoundFromFile("sounds/door-opening_closing.wav",0,0.3);
 
-                writeSystemSequence(out1, 40, 2000);
+                writeSystemSequence(out1, 40, 2000, (index, line) => {
+                    if (index === 3) {
+                        playSoundFromFile("sounds/monster-growl.wav", 0, 0.7);
+                        triggerGlitch(5000);
+                    }
+                });
+
+
             } else if (gameState.stage < 1) {
                 writeSystem("Disari cikmaya calisiyorsun ama kendini koruyacak bir sey olmadan bu cok riskli.");
             } else {
@@ -165,19 +187,18 @@ const commands = [
         }
     },
     {
-        keywords: ["bagir", "kac", "kos", "arkana don", "geri kos", "geri don"],
+        keywords: ["bekle", "kac", "kos", "arkana don", "geri kos", "geri don"],
         action: (cmd) => {
             if (gameState.stage === 2) {
                
-                if (cmd.includes("bagir")) {
+                if (cmd.includes("bekle")) {
                     const out3 = [
-                        "Bagiriyorsun... ama bu hataydi.",
-                        " ",
-                        "Sesler yaklasiyor... NE YAPACAKSIN?"
+                        "Bekliyorsun... ama bu hataydi.",
+                        "Varliğin farkedilmiş olmali.."
                     ];
-                    writeSystemSequence(out3, 40, 500);
+                    writeSystemSequence(out3, 40, 1000);
                 } 
-                 else if (cmd.includes("kac") 
+                else if (cmd.includes("kac") 
                     || cmd.includes("kos") 
                     || cmd.includes("arkana don") 
                     || cmd.includes("geri kos") 
@@ -189,26 +210,10 @@ const commands = [
                         "Karanlikta hizli kararlar vermek zorundasin.",
                         "Sola donen bir kapali kapi... saga acik bir kapi... hangisi?"
                     ], 35, 1800);
-
-            }
+                }
+            } 
         }
     },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     {
         keywords: ["ilerleme", "durum"],
         action: () => {
@@ -263,14 +268,18 @@ function writeSystem(text, speed = 35, onComplete = null) {
             return;
         }
 
-        // Anahtar kelime kontrolü
-        for (const keyword in keywordColors) {
+        for (const keyword in keywordColorsConfig) {
             const keywordLower = keyword.toLowerCase();
             const segment = text.substring(i, i + keyword.length).toLowerCase();
-
+        
             if (segment === keywordLower) {
+                const keywordClass = getKeywordClass(keyword);
                 const span = document.createElement("span");
-                keywordColors[keyword].split(" ").forEach(cls => span.classList.add(cls));
+                
+                if (keywordClass) {
+                    keywordClass.split(" ").forEach(cls => span.classList.add(cls));
+                }
+        
                 span.textContent = text.substring(i, i + keyword.length);
                 line.appendChild(span);
                 i += keyword.length;
@@ -293,13 +302,14 @@ function writeSystem(text, speed = 35, onComplete = null) {
 
 
 
-// === Coklu Sistem Mesaji (satir satir yaz) ===
-function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500) {
+function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500, onLine = null) {
     disableInput();
     let index = 0;
 
     function writeNextLine() {
         if (index < lines.length) {
+            if (onLine) onLine(index, lines[index]); // 🔥 satır geldiğinde tetiklenir
+
             writeSystem(lines[index], speed, () => {
                 index++;
                 setTimeout(writeNextLine, delayBetweenLines);
@@ -311,6 +321,7 @@ function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500) {
 
     writeNextLine();
 }
+
 
 // === Oyuncu Yazisi ===
 function writePlayer(text) {
