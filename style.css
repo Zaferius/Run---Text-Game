@@ -143,7 +143,7 @@ h1 {
 
 .glitch-active {
     animation: glitchScreen 0.1s infinite;
-    filter: contrast(150%) brightness(1.2);
+    filter: contrast(150%) brightness(1.3);
 }
 
 @keyframes glitchScreen {
