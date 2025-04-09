@@ -6,6 +6,7 @@ const startButton = document.getElementById("start-button");
 
 // Input kontrolü
 let inputEnabled = true;
+let visualShowing = false;
 
 function disableInput() {
     input.disabled = true;
@@ -13,6 +14,7 @@ function disableInput() {
 }
 
 function enableInput() {
+    if(visualShowing) return;
     input.disabled = false;
     inputEnabled = true;
     input.focus();
@@ -72,6 +74,37 @@ function triggerGlitch(duration = 1000) {
     }, duration);
 }
 
+function showVisual(imagePath, captionText = "", autoCloseAfter = null) {
+    const overlay = document.getElementById("visual-overlay");
+    const image = document.getElementById("visual-image");
+    const caption = document.getElementById("visual-caption");
+
+    image.src = imagePath;
+    caption.innerText = captionText;
+    overlay.style.display = "flex";
+    visualShowing = true;
+    disableInput();
+
+    // küçük zamanlama farkıyla opacity geçişi sağla
+    setTimeout(() => overlay.classList.add("show"), 10);
+
+    if (autoCloseAfter) {
+        setTimeout(() => hideVisual(), autoCloseAfter);
+    }
+}
+
+function hideVisual() {
+    const overlay = document.getElementById("visual-overlay");
+    overlay.classList.remove("show");
+
+    visualShowing = false;
+
+    setTimeout(() => {
+        overlay.style.display = "none";
+        enableInput();
+    }, 100); // animasyon süresi kadar bekle sonra tamamen kaldır
+}
+
 // === Oyun Durumu ===
 const gameState = {
     stage: 0 // 0: uyanis, 
@@ -129,9 +162,13 @@ const commands = [
         action: () => {
             if (gameState.stage === 0) {
                 gameState.stage = 1;
+
+            
+                showVisual("images/scissors.png", 
+                    "Makasi eline aliyorsun. Sivri... pasli... ise yarayabilir.");
+                
                 const scissorOwned = [
-                    "Makas artik sende, sivri ve pasli",
-                    "Bir silah gibi kullanabilirsin"
+                    "Makas artik sende",
                 ];
                 playSoundFromFile("sounds/knife-draw.wav",0,0.05);
                 writeSystemSequence(scissorOwned, 40, 500);
@@ -181,7 +218,8 @@ const commands = [
                     || cmd.includes("kos") 
                     || cmd.includes("arkana don") 
                     || cmd.includes("geri kos") 
-                    || cmd.includes("geri don") ) {
+                    || cmd.includes("geri don") )
+                     {
                     gameState.stage = 3;
                     writeSystemSequence([
                         "Kosmaya basliyorsun... koridordan geciyorsun...",
@@ -189,22 +227,10 @@ const commands = [
                         "Karanlikta hizli kararlar vermek zorundasin.",
                         "Sola donen bir kapali kapi... saga acik bir kapi... hangisi?"
                     ], 35, 1800);
-
+                }
             }
         }
     },
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -216,11 +242,18 @@ const commands = [
         }
     },
     {
-        keywords: ["sex", "seks", "sikis", "porno", "hayir"],
+        keywords: ["sex", "seks", "sikis", "porno", "hayir", "kudur", "mokar"],
         action: () => {
             writeSystem("Yapma ya. Fazla komiksin. Simarma.");
         }
+    },
+    {
+        keywords: ["gonca","Gonca","atılgan","maviportakal", "mavi portakal", "Mavi portakal"],
+        action: () => {
+            writeSystem("Seni çok seviyorum");
+        }
     }
+    
 ];
 
 // === Komut Isleyici ===

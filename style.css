@@ -63,6 +63,44 @@ h1 {
     font-size: 16px;
 }
 
+#visual-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 10, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    cursor: pointer;
+    text-align: center;
+
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+#visual-overlay.show {
+    opacity: 1;
+}
+
+#visual-image {
+    max-width: 60%;
+    max-height: 60%;
+    margin-bottom: 20px;
+    border: 2px solid #aaa;
+    border-radius: 4px;
+}
+
+#visual-caption {
+    color: #ccc;
+    font-size: 1.1rem;
+    max-width: 80%;
+    line-height: 1.5;
+}
+
 .system-message {
     color: rgb(255, 255, 255);
     font-size: 18px;
