@@ -105,6 +105,65 @@ function hideVisual() {
     }, 100); // animasyon süresi kadar bekle sonra tamamen kaldır
 }
 
+function showVisualWithCallback(
+    imagePath,
+    captionText = "",
+    onClose = null,
+    autoCloseAfter = null,
+    backgroundColor = null,
+    imageStyle = {}
+) {
+    const overlay = document.getElementById("visual-overlay");
+    const image = document.getElementById("visual-image");
+    const caption = document.getElementById("visual-caption");
+
+    image.src = imagePath;
+    caption.innerText = captionText;
+
+    // Arka plan rengi set et (opsiyonel)
+    if (backgroundColor) {
+        overlay.style.backgroundColor = backgroundColor;
+    } else {
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.8)"; // default
+    }
+
+    // Görsel stilini uygula (önce default, sonra override)
+image.style.width = "60%";
+image.style.height = "auto";
+
+for (let key in imageStyle) {   
+    image.style[key] = imageStyle[key];
+}
+
+    overlay.style.display = "flex";
+    setTimeout(() => overlay.classList.add("show"), 10);
+
+    disableInput();
+
+    const closeHandler = () => {
+        overlay.classList.remove("show");
+        setTimeout(() => {
+            overlay.style.display = "none";
+            enableInput();
+
+            // Reset background & image style
+            overlay.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+            image.removeAttribute("style");
+
+            if (onClose) onClose();
+        }, 100);
+    };
+
+    if (autoCloseAfter) {
+        setTimeout(closeHandler, autoCloseAfter);
+    } else {
+        overlay.onclick = () => {
+            overlay.onclick = null;
+            closeHandler();
+        };
+    }
+}
+
 // === Oyun Durumu ===
 const gameState = {
     stage: 0 // 0: uyanis, 
@@ -137,8 +196,8 @@ const keywordColorsConfig = {
     "makas": { stage: 0, class: "keyword-orange keyword-glow" },
     "kapi": { stage: 0, class: "keyword-orange keyword-glow" },
     "bekle": { stage: 2, class: "keyword-orange keyword-glow" },
-    "sola": { stage: 3, class: "keyword-orange keyword-glow" },
-    "saga": { stage: 3, class: "keyword-orange keyword-glow" },
+    "sol": { stage: 3, class: "keyword-orange keyword-glow" },
+    "sag": { stage: 3, class: "keyword-orange keyword-glow" },
     "kac": { stage: 2, class: "keyword-orange keyword-glow" },
     "kan": { stage: 2, class: "keyword-red" }
 };
@@ -178,10 +237,25 @@ const commands = [
             if (gameState.stage === 0) {
                 gameState.stage = 1;
 
-            
-                showVisual("images/scissors.png", 
-                    "Makasi eline aliyorsun. Sivri... pasli... ise yarayabilir.");
-                
+                showVisualWithCallback(
+                    "images/scissors.png",
+                    "Sivri... pasli... ise yarayabilir.",
+                    null,
+                    null, // koyu kırmızı arkaplan
+                    null
+                );
+
+                // showVisualWithCallback(
+                //     "images/scissors.png",
+                //     "Elin kana bulandi...",
+                //     () => {
+                //         writeSystem("Bu senin ilk darben olabilir...");
+                //     },
+                //     null,
+                //     "#600000", // koyu kırmızı arkaplan
+                //     { width: "1000px", height: "auto" }
+                // );
+
                 const scissorOwned = [
                     "Makas artik sende",
                 ];
@@ -199,7 +273,6 @@ const commands = [
                 gameState.stage = 2;
                 const out1 = [
                     "Kapiyi araliyorsun...",
-                    "Disarida karanlik bir koridor, yerde kan izleri.",
                     "...",
                     "Bir ses yaklasiyor...",
                     "Nedir bu?",
@@ -208,12 +281,20 @@ const commands = [
 
                 playSoundFromFile("sounds/door-opening_closing.wav",0,0.3);
 
-                writeSystemSequence(out1, 40, 2000, (index, line) => {
-                    if (index === 3) {
-                        playSoundFromFile("sounds/monster-growl.wav", 0, 0.7);
-                        triggerGlitch(5000);
-                    }
+                showVisualWithCallback("images/hospital-hallway.png", 
+                    "Karanlik bir koridor, yerde kan izleri", () => {
+                        writeSystemSequence([
+                            "...",
+                            "Bir ses yaklasiyor...",
+                            "NE YAPACAKSIN?"
+                        ], 40, 1500, (index, line) => {
+                            if (index === 1) {
+                                playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
+                                triggerGlitch(9000); // efekt süresi sana bağlı
+                            }
+                        });
                 });
+
 
 
             } else if (gameState.stage < 1) {
@@ -242,54 +323,89 @@ const commands = [
                     || cmd.includes("geri don") )
                      {
                     gameState.stage = 3;
-                    writeSystemSequence([
-                        "Kosmaya basliyorsun... koridordan geciyorsun...",
-                        "Zemin kaygan... bir noktada sendeleyebilirsin.",
-                        "Karanlikta hizli kararlar vermek zorundasin.",
-                        "Sola donen bir kapali kapi... saga acik bir kapi... hangisi?"
-                    ], 35, 1800);
+                   
+                    showVisualWithCallback("images/running-hallway.png", 
+                        "...", () => {
+                            writeSystemSequence([
+                                "Kosmaya basliyorsun... koridordan geciyorsun...",
+                                "Zemin kaygan... bir noktada sendeleyebilirsin.",
+                                "Sola donen bir kapali kapi... saga acik bir kapi... hangisi? HANGİSİ!"
+                            ], 35, 1800, (index, line) => {
+                                if (index === 0) {
+                                    //playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
+                                }
+                            });
+                    });
                 }
             }
         }
     },
-
-
-
-
     {
-        keywords: ["ilerleme", "durum"],
-        action: () => {
-            writeSystem("Mevcut oyun asamasi: " + gameState.stage);
-        }
-    },
-    {
-        keywords: ["sex", "seks", "sikis", "porno", "hayir", "kudur", "mokar"],
-        action: () => {
-            writeSystem("Yapma ya. Fazla komiksin. Simarma.");
-        }
-    },
-    {
-        keywords: ["gonca","Gonca","atılgan","maviportakal", "mavi portakal", "Mavi portakal"],
-        action: () => {
-            writeSystem("Seni çok seviyorum");
-        }
-    }
-    
-];
+        keywords: ["sol", "sol kapi", "soldaki kapiyi ac","sag", "sag kapi", "sagdaki kapiyi ac"],
+        action: (cmd) => {
+            if (gameState.stage === 3) {
+                if (cmd.includes("sol") 
+                    || cmd.includes("sol kapi"
+                    || cmd.includes("soldaki kapiyi ac"))) {
+                        showVisualWithCallback("images/opening-door.png", 
+                            "...", () => {
+                                writeSystemSequence([
+                                    "Güvenli.... Çok şanslısın.",
+                                ], 35, 1800, (index, line) => {
+                                    if (index === 0) {
+                                        //playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
+                                    }
+                                });
+                        });
+                } 
+                else if (cmd.includes("sag") 
+                    || cmd.includes("sag kapi") 
+                    || cmd.includes("sagdaki kapiyi ac")) {
+                    gameState.stage = 3;
+                    showVisualWithCallback("images/opening-door.png", 
+                        "...",
+                        null,
+                        "#600000",
+                        { width: "80%", height: "auto" },
+                         () => {
+                            playSoundFromFile("sounds/monster1-jumpscare.mp3", 0, 1);
+                            showVisualWithCallback("images/monster1.png", "");
+                    });
 
-// === Komut Isleyici ===
-function handleCommand(cmd) {
-    let matched = false;
-
-    for (const command of commands) {
-        for (const keyword of command.keywords) {
-            if (cmd.includes(keyword)) {
-                command.action(cmd); // ← cmd'yi action fonksiyonuna gönderiyoruz
-                matched = true;
-                break;
+                }
             }
         }
-        if (matched) break;
+    },
+    {
+        keywords: ["durum", "ilerleme", "gonca"],
+        action: (cmd) => {
+            const lower = cmd.toLowerCase();
+    
+            if (lower.includes("durum") || lower.includes("ilerleme")) {
+                writeSystem("Mevcut oyun asamasi: " + gameState.stage);
+            }
+            else if (lower.includes("gonca")) {
+                writeSystem("Seni çok seviyorum ❤️");
+            }
+        }
+    }
+];
+
+function handleCommand(cmd) {
+    let matched = false;
+    const lower = cmd.toLowerCase();
+
+    for (const command of commands) {
+        // keywords varsa ona göre kontrol et
+        if (command.keywords && Array.isArray(command.keywords)) {
+            for (const keyword of command.keywords) {
+                if (lower.includes(keyword)) {
+                    command.action(cmd);
+                    matched = true;
+                    break;
+                }
+            }
+        }
     }
 
     if (!matched) {
@@ -297,6 +413,7 @@ function handleCommand(cmd) {
         writeSystem(randomMessage);
     }
 }
+
 
 function writeSystem(text, speed = 35, onComplete = null) {
     disableInput();
