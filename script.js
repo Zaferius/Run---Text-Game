@@ -66,13 +66,14 @@ function playSoundFromFile(path, delay = 0, volume = 1) {
 }
 
 function triggerGlitch(duration = 1000) {
-    const screen = document.getElementById("game-screen");
-    screen.classList.add("glitch-active");
+    const wrapper = document.getElementById("game-wrapper");
+    wrapper.classList.add("glitch-active");
 
     setTimeout(() => {
-        screen.classList.remove("glitch-active");
+        wrapper.classList.remove("glitch-active");
     }, duration);
 }
+
 
 function showVisual(imagePath, captionText = "", autoCloseAfter = null) {
     const overlay = document.getElementById("visual-overlay");
@@ -220,10 +221,10 @@ function startIntro() {
         "Soguk bir hastane odasindasin. Kafan sargilarla kapli.",
         "Kapinin arkasindan insan disi bir ciglik duyuluyor.",
         "Basini toparlayip yataktan kalkiyorsun...",
-        "Yanimda bir makas var. Belki isime yarar.",
+        "-Yanimda bir makas var. Belki isime yarar.",
         " ",
         " ",
-        "Ne yapmak istersin?"
+        "Ne yapacaksin?"
     ];
 
     writeSystemSequence(intro, 30, 400);
@@ -237,13 +238,11 @@ const commands = [
             if (gameState.stage === 0) {
                 gameState.stage = 1;
 
-                showVisualWithCallback(
-                    "images/scissors.png",
-                    "Sivri... pasli... ise yarayabilir.",
-                    null,
-                    null, // koyu kırmızı arkaplan
-                    null
-                );
+                playSoundFromFile("sounds/knife-draw.wav", 0, 0.55);
+                showVisualWithCallback("images/scissors.png", 
+                    "Sivri... pasli... ise yarayabilir.", () => {
+                        writeSystem("Makas artık elinde.");
+                });
 
                 // showVisualWithCallback(
                 //     "images/scissors.png",
@@ -256,11 +255,9 @@ const commands = [
                 //     { width: "1000px", height: "auto" }
                 // );
 
-                const scissorOwned = [
-                    "Makas artik sende",
-                ];
-                playSoundFromFile("sounds/knife-draw.wav",0,0.05);
-                writeSystemSequence(scissorOwned, 40, 500);
+        
+              
+                
             } else if (gameState.stage > 0) {
                 writeSystem("Makas zaten elinde.");
             }
@@ -324,6 +321,7 @@ const commands = [
                      {
                     gameState.stage = 3;
                    
+                    playSoundFromFile("sounds/run.wav", 0, 0.6);
                     showVisualWithCallback("images/running-hallway.png", 
                         "...", () => {
                             writeSystemSequence([
@@ -332,7 +330,7 @@ const commands = [
                                 "Sola donen bir kapali kapi... saga acik bir kapi... hangisi? HANGİSİ!"
                             ], 35, 1800, (index, line) => {
                                 if (index === 0) {
-                                    //playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
+                                    //playSoundFromFile("sounds/run.wav", 0, 0.9);
                                 }
                             });
                     });
@@ -361,18 +359,26 @@ const commands = [
                 else if (cmd.includes("sag") 
                     || cmd.includes("sag kapi") 
                     || cmd.includes("sagdaki kapiyi ac")) {
-                    gameState.stage = 3;
+                    gameState.stage = 4;
+                    
                     showVisualWithCallback("images/opening-door.png", 
-                        "...",
-                        null,
-                        "#600000",
-                        { width: "80%", height: "auto" },
-                         () => {
-                            playSoundFromFile("sounds/monster1-jumpscare.mp3", 0, 1);
-                            showVisualWithCallback("images/monster1.png", "");
-                    });
+                        "...", () => {
+                            triggerGlitch(10000);
+                             playSoundFromFile("sounds/monster1_jumpscare.mp3", 0, 1);
+                            showVisualWithCallback(
+                                "images/monster1.png",
+                                "",
+                                () => {
+                                    writeSystem(" ");
+                                },
+                                null,
+                                "#030000", // koyu kırmızı arkaplan
+                                { width: "1000px", height: "auto" }
+                            );
+                    });    
 
-                }
+
+                    }
             }
         }
     },
