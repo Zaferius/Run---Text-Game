@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- Başlangıç ekranı -->
     <div id="title-screen">
         <h1>RUN</h1>
         <p>Turkce versiyon</p>
@@ -14,23 +16,24 @@
         <p>Zafer AKKAN</p>
     </div>
 
-   
-
+    <!-- Geçiş efekti -->
     <div id="fade"></div>
 
-    <div id="game-wrapper">
-        <div id="game-screen" style="display:none;">
-            <div id="output"></div>
-            <input type="text" id="input" autocomplete="off" autofocus />
-        </div>
-        
-        <div id="visual-overlay" style="display: none;" onclick="hideVisual()">
+    <!-- Oyun ekranı -->
+    <div id="game-screen" style="display: none;">
+        <div id="output"></div>
+        <input type="text" id="input" autocomplete="off" autofocus />
+    </div>
+
+    <!-- Görsel + caption katmanı -->
+    <div id="visual-overlay" style="display: none;">
+        <div id="visual-container"> <!-- 🎯 Glitch efekti buraya gelecek -->
             <img id="visual-image" src="" alt="visual">
             <div id="visual-caption"></div>
         </div>
     </div>
-    
 
+    <!-- JS -->
     <script src="script.js"></script>
 </body>
 </html>

@@ -66,13 +66,16 @@ function playSoundFromFile(path, delay = 0, volume = 1) {
 }
 
 function triggerGlitch(duration = 1000) {
-    const wrapper = document.getElementById("game-wrapper");
-    wrapper.classList.add("glitch-active");
-
+    const container = document.getElementById("game-screen");
+    const containerV = document.getElementById("visual-container");
+    container.classList.add("glitch-active");
+    containerV.classList.add("glitch-active");
+  
     setTimeout(() => {
-        wrapper.classList.remove("glitch-active");
+      container.classList.remove("glitch-active");
+      containerV.classList.remove("glitch-active");
     }, duration);
-}
+  }
 
 
 function showVisual(imagePath, captionText = "", autoCloseAfter = null) {
@@ -227,7 +230,7 @@ function startIntro() {
         "Ne yapacaksin?"
     ];
 
-    writeSystemSequence(intro, 30, 400);
+    writeSystemSequence(intro, 1, 400);
 }
 
 // === Komutlar Tanimi ===
@@ -238,6 +241,7 @@ const commands = [
             if (gameState.stage === 0) {
                 gameState.stage = 1;
 
+                triggerGlitch(10000);
                 playSoundFromFile("sounds/knife-draw.wav", 0, 0.55);
                 showVisualWithCallback("images/scissors.png", 
                     "Sivri... pasli... ise yarayabilir.", () => {
@@ -373,7 +377,7 @@ const commands = [
                                 },
                                 null,
                                 "#030000", // koyu kırmızı arkaplan
-                                { width: "1000px", height: "auto" }
+                                { width: "80%", height: "auto" }
                             );
                     });    
 
