@@ -241,7 +241,7 @@ const commands = [
             if (gameState.stage === 0) {
                 gameState.stage = 1;
 
-                triggerGlitch(10000);
+                // triggerGlitch(10000);
                 playSoundFromFile("sounds/knife-draw.wav", 0, 0.55);
                 showVisualWithCallback("images/scissors.png", 
                     "Sivri... pasli... ise yarayabilir.", () => {
@@ -291,7 +291,7 @@ const commands = [
                         ], 40, 1500, (index, line) => {
                             if (index === 1) {
                                 playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
-                                triggerGlitch(9000); // efekt süresi sana bağlı
+                                triggerGlitch(5000); // efekt süresi sana bağlı
                             }
                         });
                 });

@@ -154,37 +154,37 @@ h1 {
 /* Tüm görsel sahneye uygulanan birleşik efekt */
 #game-screen.glitch-active {
     animation: glitchCombo 0.05s infinite;
-    filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue)
-            contrast(150%) brightness(1.2);
+    /* filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue)
+            contrast(150%) brightness(1.2); */
   }
 
   /* Tüm görsel sahneye uygulanan birleşik efekt */
 #visual-container.glitch-active {
     animation: glitchCombo 0.05s infinite;
-    filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue)
-            contrast(150%) brightness(1.2);
-  }
+    /*filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(150%) brightness(1.2); */
+}
+ 
   
   /* RGB + shake efektini birleştirir */
   @keyframes glitchCombo {
     0% {
       transform: translate(0, 0);
-      filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(130%) brightness(1.1);
+      /* filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(130%) brightness(1.1); */
     }
     25% {
       transform: translate(-5px, 5px);
-      filter: drop-shadow(-2px 0 red) drop-shadow(2px 0 blue) contrast(160%) brightness(1.3);
+      /* filter: drop-shadow(-2px 0 red) drop-shadow(2px 0 blue) contrast(160%) brightness(1.3); */
     }
     50% {
       transform: translate(5px, -3px);
-      filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(150%) brightness(1.2);
+      /* filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(150%) brightness(1.2); */
     }
     75% {
       transform: translate(-3px, 3px);
-      filter: drop-shadow(-2px 0 red) drop-shadow(2px 0 blue) contrast(140%) brightness(1.15);
+      /* filter: drop-shadow(-2px 0 red) drop-shadow(2px 0 blue) contrast(140%) brightness(1.15); */
     }
     100% {
       transform: translate(0, 0);
-      filter: drop-shadow(-2px 0 red) drop-shadow(1px 0 blue) contrast(130%) brightness(1.1);
+      /* filter: drop-shadow(-2px 0 red) drop-shadow(1px 0 blue) contrast(130%) brightness(1.1); */
     }
   }
