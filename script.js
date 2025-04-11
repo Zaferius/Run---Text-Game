@@ -4,6 +4,59 @@ const titleScreen = document.getElementById("title-screen");
 const gameScreen = document.getElementById("game-screen");
 const startButton = document.getElementById("start-button");
 
+const assetsToPreload = [
+    "images/scissors.png",
+    "images/monster1.png",
+    "images/opening-door.png",
+    "images/running-hallway.png",
+    "images/hospital-hallway.png",
+    "sounds/ambient.mp3",
+    "sounds/knife-draw.wav",
+    "sounds/door-opening_closing.wav",
+    "sounds/monster1_jumpscare_reverb.mp3",
+    "sounds/monster-growl.wav"
+  ];
+  
+  function preloadAssets(callback) {
+    const total = assetsToPreload.length;
+    let loaded = 0;
+  
+    const bar = document.getElementById("loading-bar");
+  
+    const checkDone = () => {
+      loaded++;
+      bar.style.width = ((loaded / total) * 100) + "%";
+  
+      if (loaded >= total) {
+        setTimeout(() => {
+          document.getElementById("loading-screen").style.display = "none";
+          callback(); // oyun başlayabilir
+        }, 300);
+      }
+    };
+  
+    for (const asset of assetsToPreload) {
+      if (asset.match(/\.(png|jpg|jpeg)$/i)) {
+        const img = new Image();
+        img.src = asset;
+        img.onload = checkDone;
+        img.onerror = checkDone;
+      } else if (asset.match(/\.(mp3|wav)$/i)) {
+        const audio = new Audio();
+        audio.src = asset;
+        audio.oncanplaythrough = checkDone;
+        audio.onerror = checkDone;
+      }
+    }
+  }
+  
+  window.addEventListener("load", () => {
+    preloadAssets(() => {
+      document.getElementById("title-screen").style.display = "block";
+    });
+  });
+  
+
 // Input kontrolü
 let inputEnabled = true;
 let visualShowing = false;
@@ -39,6 +92,9 @@ startButton.addEventListener("click", () => {
     
 });
 
+document.getElementById("restart-button").addEventListener("click", () => {
+    location.reload();
+});
 
 let ambientMusic = null;
 
@@ -99,14 +155,17 @@ function showVisual(imagePath, captionText = "", autoCloseAfter = null) {
 
 function hideVisual() {
     const overlay = document.getElementById("visual-overlay");
-    overlay.classList.remove("show");
+    const image = document.getElementById("visual-image");
 
+    overlay.classList.remove("show");
     visualShowing = false;
 
     setTimeout(() => {
         overlay.style.display = "none";
+        image.src = "";
+        image.removeAttribute("style");
         enableInput();
-    }, 100); // animasyon süresi kadar bekle sonra tamamen kaldır
+    }, 100);
 }
 
 function showVisualWithCallback(
@@ -368,7 +427,10 @@ const commands = [
                     showVisualWithCallback("images/opening-door.png", 
                         "...", () => {
                             triggerGlitch(10000);
-                             playSoundFromFile("sounds/monster1_jumpscare.mp3", 0, 1);
+
+                            setTimeout(triggerGameOverScreen, 1000);
+
+                             playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.4);
                             showVisualWithCallback(
                                 "images/monster1.png",
                                 "",
@@ -518,3 +580,17 @@ input.addEventListener("keydown", function (e) {
         handleCommand(command);
     }
 });
+
+function triggerGameOverScreen() {
+    const gameOver = document.getElementById("gameover-screen");
+
+    // Tüm oyun ekranını karart
+    document.getElementById("game-screen").style.display = "none";
+    document.getElementById("visual-overlay").style.display = "none";
+    input.blur(); // input'u da devre dışı bırak
+
+    setTimeout(() => {
+        gameOver.style.display = "flex";
+        gameOver.classList.add("show");
+    }, 2000); // ← 4 saniye sonra çalıştır
+}

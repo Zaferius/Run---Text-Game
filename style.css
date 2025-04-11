@@ -13,7 +13,35 @@
     transition: opacity 1s ease;
 }
 
-body {
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background-color: black;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    font-family: 'Courier New', monospace;
+  }
+  
+  #loading-bar-container {
+    width: 300px;
+    height: 20px;
+    background: #333;
+    margin-bottom: 10px;
+    border: 1px solid white;
+  }
+  
+  #loading-bar {
+    height: 100%;
+    width: 0%;
+    background: white;
+    transition: width 0.2s ease;
+  }
+
+body, button, input, select, textarea {
     background-color: black;
     color: white;
     font-family: 'VT323', monospace;
@@ -139,6 +167,59 @@ h1 {
     text-shadow: 0 0 1px currentColor, 0 0 1px currentColor;
 }
 
+#gameover-screen {
+    position: fixed;
+    inset: 0;
+    background-color: black;
+    color: red;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease;
+  }
+  
+  #gameover-screen.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  #gameover-text {
+    margin-bottom: 30px;
+    opacity: 0;
+    animation: fadeInText 3s forwards;
+  }
+  
+  #restart-button {
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border: 2px solid red;
+    background: transparent;
+    color: red;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    opacity: 0;
+    animation: fadeInButton 5s forwards;
+  }
+  
+  #restart-button:hover {
+    background: red;
+    color: black;
+  }
+  
+  @keyframes fadeInText {
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeInButton {
+    to { opacity: 1; }
+  }
+  
+
 @keyframes glowPulse {
     from {
         opacity: 1;
@@ -161,7 +242,7 @@ h1 {
   /* Tüm görsel sahneye uygulanan birleşik efekt */
 #visual-container.glitch-active {
     animation: glitchCombo 0.05s infinite;
-    /*filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(150%) brightness(1.2); */
+    filter: drop-shadow(-1px 0 red) drop-shadow(1px 0 blue) contrast(150%) brightness(1.2);
 }
  
   

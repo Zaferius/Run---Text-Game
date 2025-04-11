@@ -5,6 +5,7 @@
     <title>Run - Text Adventure</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <!-- Başlangıç ekranı -->
@@ -12,8 +13,9 @@
         <h1>RUN</h1>
         <p>Turkce versiyon</p>
         <p class="note">No Turkish Character</p>
-        <button id="start-button">Oyuna Basla</button>
         <p>Zafer AKKAN</p>
+        <button id="start-button">Basla</button>
+        
     </div>
 
     <!-- Geçiş efekti -->
@@ -25,6 +27,11 @@
         <input type="text" id="input" autocomplete="off" autofocus />
     </div>
 
+    <div id="gameover-screen" style="display: none;">
+        <h1 id="gameover-text">BITTI</h1>
+        <button id="restart-button">Ana Menüye Dön</button>
+      </div>
+
     <!-- Görsel + caption katmanı -->
     <div id="visual-overlay" style="display: none;">
         <div id="visual-container"> <!-- 🎯 Glitch efekti buraya gelecek -->
@@ -35,5 +42,14 @@
 
     <!-- JS -->
     <script src="script.js"></script>
+
+    <div id="loading-screen">
+        <div id="loading-bar-container">
+          <div id="loading-bar"></div>
+        </div>
+        <p>Yükleniyor...</p>
+      </div>
+
+
 </body>
 </html>
