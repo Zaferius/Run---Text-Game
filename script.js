@@ -11,10 +11,11 @@ const assetsToPreload = [
     "images/running-hallway.png",
     "images/hospital-hallway.png",
     "sounds/ambient.mp3",
-    "sounds/knife-draw.wav",
     "sounds/door-opening_closing.wav",
-    "sounds/monster1_jumpscare_reverb.mp3",
-    "sounds/monster-growl.wav"
+    "sounds/knife-draw.wav",
+    "sounds/monster-growl.wav",
+    "sounds/monster1_jumpscare3.wav",
+    "sounds/run.wav"
   ];
   
   function preloadAssets(callback) {
@@ -187,7 +188,7 @@ function showVisualWithCallback(
     if (backgroundColor) {
         overlay.style.backgroundColor = backgroundColor;
     } else {
-        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.8)"; // default
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.975)"; // default
     }
 
     // Görsel stilini uygula (önce default, sonra override)
@@ -410,6 +411,7 @@ const commands = [
                     || cmd.includes("soldaki kapiyi ac"))) {
                         showVisualWithCallback("images/opening-door.png", 
                             "...", () => {
+                                 setTimeout(triggerGameOverScreen, 1000);
                                 writeSystemSequence([
                                     "Güvenli.... Çok şanslısın.",
                                 ], 35, 1800, (index, line) => {
@@ -426,11 +428,11 @@ const commands = [
                     
                     showVisualWithCallback("images/opening-door.png", 
                         "...", () => {
-                            triggerGlitch(10000);
+                            triggerGlitch(1000);
 
-                            setTimeout(triggerGameOverScreen, 1000);
+                            setTimeout(triggerGameOverScreen, 800);
 
-                             playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.4);
+                            playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.1);
                             showVisualWithCallback(
                                 "images/monster1.png",
                                 "",
@@ -592,5 +594,5 @@ function triggerGameOverScreen() {
     setTimeout(() => {
         gameOver.style.display = "flex";
         gameOver.classList.add("show");
-    }, 2000); // ← 4 saniye sonra çalıştır
+    }, 4000); // ← 4 saniye sonra çalıştır
 }
