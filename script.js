@@ -46,6 +46,8 @@ const assetsToPreload = [
     "sounds/run.wav"
   ];
   
+  const soundCache = {};
+
   function preloadAssets(callback) {
     const total = assetsToPreload.length;
     let loaded = 0;
@@ -59,7 +61,7 @@ const assetsToPreload = [
       if (loaded >= total) {
         setTimeout(() => {
           document.getElementById("loading-screen").style.display = "none";
-          callback(); // oyun başlayabilir
+          callback(); // Oyun başlasın
         }, 300);
       }
     };
@@ -70,57 +72,25 @@ const assetsToPreload = [
         img.src = asset;
         img.onload = checkDone;
         img.onerror = checkDone;
+  
       } else if (asset.match(/\.(mp3|wav)$/i)) {
         const audio = new Audio();
         audio.src = asset;
-        audio.oncanplaythrough = checkDone;
+        audio.load(); // 🔥 Safari için çok önemli
+        soundCache[asset] = audio;
+  
+        // 🔁 Safari ve diğer tüm tarayıcılar için güvenli preload
+        audio.onloadeddata = checkDone;
         audio.onerror = checkDone;
       }
     }
   }
-  
+
   window.addEventListener("load", () => {
     preloadAssets(() => {
       document.getElementById("title-screen").style.display = "block";
     });
   });
-  
-
-  const soundCache = {};
-
-function preloadAssets(callback) {
-  const total = assetsToPreload.length;
-  let loaded = 0;
-
-  const bar = document.getElementById("loading-bar");
-
-  const checkDone = () => {
-    loaded++;
-    bar.style.width = ((loaded / total) * 100) + "%";
-
-    if (loaded >= total) {
-      setTimeout(() => {
-        document.getElementById("loading-screen").style.display = "none";
-        callback(); // oyun başlayabilir
-      }, 300);
-    }
-  };
-
-  for (const asset of assetsToPreload) {
-    if (asset.match(/\.(png|jpg|jpeg)$/i)) {
-      const img = new Image();
-      img.src = asset;
-      img.onload = checkDone;
-      img.onerror = checkDone;
-    } else if (asset.match(/\.(mp3|wav)$/i)) {
-      const audio = new Audio();
-      audio.src = asset;
-      soundCache[asset] = audio; // ✅ ÖNEMLİ: cache'e al
-      audio.oncanplaythrough = checkDone;
-      audio.onerror = checkDone;
-    }
-  }
-}
 
 // Input kontrolü
 let inputEnabled = true;
@@ -398,7 +368,7 @@ const commands = [
             )) {
                 gameState.stage = 2;
 
-                playSoundFromFile("sounds/door-opening_closing.wav", 0, 0.3);
+                playSoundFromFile("sounds/door-opening_closing.wav", 0, 0.55);
                 showVisualWithCallback("images/hospital-hallway.png", 
                     "Karanlik bir koridor, yerde kan izleri", () => {
                         writeSystemSequence([
