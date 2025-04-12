@@ -86,6 +86,42 @@ const assetsToPreload = [
   });
   
 
+  const soundCache = {};
+
+function preloadAssets(callback) {
+  const total = assetsToPreload.length;
+  let loaded = 0;
+
+  const bar = document.getElementById("loading-bar");
+
+  const checkDone = () => {
+    loaded++;
+    bar.style.width = ((loaded / total) * 100) + "%";
+
+    if (loaded >= total) {
+      setTimeout(() => {
+        document.getElementById("loading-screen").style.display = "none";
+        callback(); // oyun başlayabilir
+      }, 300);
+    }
+  };
+
+  for (const asset of assetsToPreload) {
+    if (asset.match(/\.(png|jpg|jpeg)$/i)) {
+      const img = new Image();
+      img.src = asset;
+      img.onload = checkDone;
+      img.onerror = checkDone;
+    } else if (asset.match(/\.(mp3|wav)$/i)) {
+      const audio = new Audio();
+      audio.src = asset;
+      soundCache[asset] = audio; // ✅ ÖNEMLİ: cache'e al
+      audio.oncanplaythrough = checkDone;
+      audio.onerror = checkDone;
+    }
+  }
+}
+
 // Input kontrolü
 let inputEnabled = true;
 let visualShowing = false;
@@ -146,12 +182,18 @@ function stopAmbientMusic() {
 
 function playSoundFromFile(path, delay = 0, volume = 1) {
     setTimeout(() => {
-        const audio = new Audio(path);
-        audio.currentTime = 0;
-        audio.volume = volume;
-        audio.play();
+      let audio;
+      if (soundCache[path]) {
+        audio = soundCache[path].cloneNode(); // 🔁 Kopyasını çal
+      } else {
+        audio = new Audio(path); // fallback
+      }
+      audio.volume = volume;
+      audio.currentTime = 0;
+      audio.play().catch((e) => console.warn("Ses çalma hatası:", e));
     }, delay);
-}
+  }
+  
 
 function triggerGlitch(duration = 1000) {
     const container = document.getElementById("game-screen");
@@ -475,6 +517,9 @@ const commands = [
                 return true;
             } else if (lower.includes("gonca")) {
                 writeSystem("Seni çok seviyorum ❤️");
+                return true;
+            } else if (lower.includes("karpat")) {
+                writeSystem("Tarlayaaa");
                 return true;
             }
         }
