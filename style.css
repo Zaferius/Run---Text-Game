@@ -13,6 +13,19 @@
     transition: opacity 1s ease;
 }
 
+#vignette-timer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(ellipse at center, transparent 50%, #320000 100%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
 #loading-screen {
     position: fixed;
     inset: 0;

@@ -4,6 +4,34 @@ const titleScreen = document.getElementById("title-screen");
 const gameScreen = document.getElementById("game-screen");
 const startButton = document.getElementById("start-button");
 
+let audioContextUnlocked = false;
+
+function unlockAudioContext() {
+    if (audioContextUnlocked) return;
+
+    try {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const buffer = context.createBuffer(1, 1, 22050);
+        const source = context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(context.destination);
+        source.start(0);
+
+        if (context.state === "suspended") {
+            context.resume();
+        }
+
+        audioContextUnlocked = true;
+        console.log("🔓 AudioContext unlocked!");
+    } catch (e) {
+        console.warn("❌ AudioContext unlock failed:", e);
+    }
+
+    window.removeEventListener("click", unlockAudioContext);
+    window.removeEventListener("keydown", unlockAudioContext);
+}
+
+
 const assetsToPreload = [
     "images/scissors.png",
     "images/monster1.png",
@@ -75,6 +103,8 @@ function enableInput() {
 }
 
 startButton.addEventListener("click", () => {
+    
+    unlockAudioContext();
     
     // 2. sonra fade-out başlasın
     setTimeout(() => {
@@ -175,7 +205,8 @@ function showVisualWithCallback(
     onClose = null,
     autoCloseAfter = null,
     backgroundColor = null,
-    imageStyle = {}
+    imageStyle = {},
+    onShow = null // ← yeni parametre
 ) {
     const overlay = document.getElementById("visual-overlay");
     const image = document.getElementById("visual-image");
@@ -184,23 +215,24 @@ function showVisualWithCallback(
     image.src = imagePath;
     caption.innerText = captionText;
 
-    // Arka plan rengi set et (opsiyonel)
-    if (backgroundColor) {
-        overlay.style.backgroundColor = backgroundColor;
-    } else {
-        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.975)"; // default
+    // 📌 Default width ve height
+    image.style.width = "80%";
+    image.style.height = "auto";
+
+    // Eğer imageStyle ile geçersiz değer varsa onları uygula
+    for (let key in imageStyle) {
+        image.style[key] = imageStyle[key];
     }
 
-    // Görsel stilini uygula (önce default, sonra override)
-image.style.width = "60%";
-image.style.height = "auto";
-
-for (let key in imageStyle) {   
-    image.style[key] = imageStyle[key];
-}
-
+    // Arkaplan rengi
+    overlay.style.backgroundColor = backgroundColor || "rgba(0, 0, 0, 0.8)";
     overlay.style.display = "flex";
-    setTimeout(() => overlay.classList.add("show"), 10);
+
+    setTimeout(() => {
+        overlay.classList.add("show");
+
+        if (onShow) onShow(); // 🔥 Görsel gösterildiğinde tetikle
+    }, 10);
 
     disableInput();
 
@@ -209,11 +241,8 @@ for (let key in imageStyle) {
         setTimeout(() => {
             overlay.style.display = "none";
             enableInput();
-
-            // Reset background & image style
             overlay.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-            image.removeAttribute("style");
-
+            image.removeAttribute("style"); // 👈 Style sıfırla (width ve height dahil)
             if (onClose) onClose();
         }, 100);
     };
@@ -227,6 +256,8 @@ for (let key in imageStyle) {
         };
     }
 }
+
+
 
 // === Oyun Durumu ===
 const gameState = {
@@ -290,6 +321,7 @@ function startIntro() {
         "Ne yapacaksin?"
     ];
 
+    //startDecisionCountdown(1000);
     writeSystemSequence(intro, 25, 800);
     //writeSystemSequence(intro, 1, 1);
 }
@@ -368,6 +400,7 @@ const commands = [
                             "Zemin kaygan... bir noktada sendeleyebilirsin.",
                             "Sola donen bir kapali kapi... saga acik bir kapi... hangisi? HANGİSİ!"
                         ], 35, 1800);
+                        startDecisionCountdown(20000); // 20 saniye süre başlasın
                     });
                     return true;
                 } else {
@@ -388,7 +421,7 @@ const commands = [
                         playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.3);
                         showVisualWithCallback("images/monster1.png", "", () => {
                             writeSystem(" ");
-                        }, null, "#160000", { width: "80%", height: "auto" });
+                        }, null, "#160000", { width: "100%", height: "auto" });
                     }
     
                     return true;
@@ -402,6 +435,7 @@ const commands = [
                 if (
                     cmd.includes("sol") || cmd.includes("sol kapi") || cmd.includes("soldaki kapiyi ac")
                 ) {
+                    cancelDecisionCountdown();
                     playSoundFromFile("sounds/door-opening.wav", 0, 0.5);
                     showVisualWithCallback("images/opening-door.png", "...", () => {
                         setTimeout(triggerGameOverScreen, 4);
@@ -413,6 +447,7 @@ const commands = [
                 if (
                     cmd.includes("sag") || cmd.includes("sag kapi") || cmd.includes("sagdaki kapiyi ac")
                 ) {
+                    cancelDecisionCountdown();
                     gameState.stage = 4;
                     playSoundFromFile("sounds/door-opening.wav", 0, 0.5);
                     showVisualWithCallback("images/opening-door.png", "...", () => {
@@ -573,4 +608,50 @@ function triggerGameOverScreen() {
         gameOver.style.display = "flex";
         gameOver.classList.add("show");
     }, 4000); // ← 4 saniye sonra çalıştır
+}
+
+let decisionTimer = null;
+let vignetteInterval = null;
+
+function startDecisionCountdown(timeout) {
+    const vignette = document.getElementById("vignette-timer");
+    let opacity = 0;
+    vignette.style.opacity = opacity;
+
+    vignetteInterval = setInterval(() => {
+        opacity += 0.1;
+        vignette.style.opacity = opacity.toFixed(2);
+
+        if (opacity >= 1) {
+            clearInterval(vignetteInterval);
+        }
+    }, timeout / 10); // her 1 saniyede opacity %10 artar
+
+    decisionTimer = setTimeout(() => {
+        clearInterval(vignetteInterval);
+        vignette.style.opacity = 0;
+        triggerGlitch(1000);
+        setTimeout(triggerGameOverScreen, 800);
+        showVisualWithCallback(
+            "images/monster1.png",
+            "",
+            () => {
+                triggerGameOverScreen();
+            },
+            null,
+            "#160000",
+            { width: "100%", height: "auto" },
+            () => {
+                // 💥 Görsel tam gösterildiğinde ses çalsın
+                playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.6);
+            }
+        );
+    }, timeout);
+}
+
+function cancelDecisionCountdown() {
+    clearTimeout(decisionTimer);
+    clearInterval(vignetteInterval);
+    const vignette = document.getElementById("vignette-timer");
+    vignette.style.opacity = 0;
 }
