@@ -322,8 +322,8 @@ function startIntro() {
     ];
 
     //startDecisionCountdown(1000);
-    //writeSystemSequence(intro, 25, 800);
-    writeSystemSequence(intro, 1, 1);
+    writeSystemSequence(intro, 25, 800);
+    //writeSystemSequence(intro, 1, 1);
 }
 
 const commands = [
