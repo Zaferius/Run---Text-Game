@@ -206,7 +206,7 @@ function showVisualWithCallback(
     autoCloseAfter = null,
     backgroundColor = null,
     imageStyle = {},
-    onShow = null // ← yeni parametre
+    onShow = null, // ← yeni parametre
 ) {
     const overlay = document.getElementById("visual-overlay");
     const image = document.getElementById("visual-image");
@@ -216,7 +216,7 @@ function showVisualWithCallback(
     caption.innerText = captionText;
 
     // 📌 Default width ve height
-    image.style.width = "80%";
+    image.style.width = "75%";
     image.style.height = "auto";
 
     // Eğer imageStyle ile geçersiz değer varsa onları uygula
@@ -322,8 +322,8 @@ function startIntro() {
     ];
 
     //startDecisionCountdown(1000);
-    writeSystemSequence(intro, 25, 800);
-    //writeSystemSequence(intro, 1, 1);
+    //writeSystemSequence(intro, 25, 800);
+    writeSystemSequence(intro, 1, 1);
 }
 
 const commands = [
