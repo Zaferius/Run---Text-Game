@@ -102,16 +102,18 @@ function enableInput() {
     input.focus();
 }
 
+let gameStarted = false;
+
 startButton.addEventListener("click", () => {
-    
-    unlockAudioContext();
-    
-    // 2. sonra fade-out başlasın
+    if (gameStarted) return; // ⛔ Eğer zaten başladıysa bir daha başlatma
+    gameStarted = true;
+
+    unlockAudioContext(); // (önceden eklediğimiz ses unlock kodu)
+
     setTimeout(() => {
         fade.style.opacity = 1;
-    }, 100); // minik gecikme
+    }, 100);
 
-    // 3. intro yazılarını başlat (fade bittikten sonra)
     setTimeout(() => {
         fade.style.opacity = 0;
         titleScreen.style.display = "none";
@@ -119,8 +121,7 @@ startButton.addEventListener("click", () => {
         input.focus();
         startAmbientMusic("sounds/ambient.mp3");
         startIntro();
-    }, 2000); // fade süresi kadar bekle
-    
+    }, 2000);
 });
 
 document.getElementById("restart-button").addEventListener("click", () => {
