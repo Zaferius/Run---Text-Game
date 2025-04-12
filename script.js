@@ -333,7 +333,7 @@ const commands = [
                         ], 40, 1500, (index, line) => {
                             if (index === 1) {
                                 playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
-                               // triggerGlitch(2000);
+                                triggerGlitch(2000);
                             }
                         });
                     });
