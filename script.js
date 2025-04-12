@@ -290,7 +290,8 @@ function startIntro() {
         "Ne yapacaksin?"
     ];
 
-    writeSystemSequence(intro, 1, 400);
+    writeSystemSequence(intro, 25, 800);
+    //writeSystemSequence(intro, 1, 1);
 }
 
 const commands = [
@@ -332,7 +333,7 @@ const commands = [
                         ], 40, 1500, (index, line) => {
                             if (index === 1) {
                                 playSoundFromFile("sounds/monster-growl.wav", 0, 0.8);
-                                triggerGlitch(5000);
+                               // triggerGlitch(2000);
                             }
                         });
                     });
@@ -382,16 +383,12 @@ const commands = [
                         gameState.escapeWarnings++;
                     } else {
                         // 4. yanlışta jumpscare + game over
-                        triggerGlitch(800);
-                        triggerGameOverScreen();
-                        playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.6);
-                        showVisualWithCallback(
-                            "images/monster1.png",
-                            "",
-                            null,
-                            "#160000",
-                            { width: "80%", height: "auto" }
-                        );
+                        triggerGlitch(1000);
+                        setTimeout(triggerGameOverScreen, 800);
+                        playSoundFromFile("sounds/monster1_jumpscare3.wav", 0, 0.3);
+                        showVisualWithCallback("images/monster1.png", "", () => {
+                            writeSystem(" ");
+                        }, null, "#160000", { width: "80%", height: "auto" });
                     }
     
                     return true;
@@ -570,6 +567,7 @@ function triggerGameOverScreen() {
     document.getElementById("game-screen").style.display = "none";
     document.getElementById("visual-overlay").style.display = "none";
     input.blur(); // input'u da devre dışı bırak
+    stopAmbientMusic();
 
     setTimeout(() => {
         gameOver.style.display = "flex";
