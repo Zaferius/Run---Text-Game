@@ -340,10 +340,10 @@ function startIntro() {
 }
 
 function getPossibleCommandsForStage(stage) {
-    if (stage === 0) return ["makas al", "makasi ikiye ayir"];
+    if (stage === 0) return ["makası al", "makasi ikiye ayir"];
     if (stage === 1) return ["kapiyi ac", "koridora cik"];
-    if (stage === 2) return ["kac", "bekle", "bagir"];
-    if (stage === 3) return ["sol kapi", "sag kapi"];
+    if (stage === 2) return [":)"];
+    if (stage === 3) return ["sol", "sag"];
     return ["durum", "gonca"];
   }
 
@@ -351,7 +351,7 @@ const commands = [
     {
         action: (cmd) => {
             if (gameState.stage === 0 && (
-                cmd.includes("makas al") || cmd.includes("al makas") || cmd.includes("makasi al") || cmd.includes("al makasi")
+                cmd.includes("makası al") || cmd.includes("al makas") || cmd.includes("makasi al") || cmd.includes("al makasi")
             )) {
                 gameState.stage = 1;
 
@@ -409,9 +409,8 @@ const commands = [
         action: (cmd) => {
             if (gameState.stage === 2) {
                 if (
-                    cmd.includes("kac") || cmd.includes("kos") || cmd.includes("arkana don") ||
-                    cmd.includes("geri kos") || cmd.includes("geri don")
-                ) {
+                    cmd.includes("kac"))
+                 {
                     gameState.stage = 3;
                     gameState.escapeWarnings = 0; // sıfırla
                     playSoundFromFile("sounds/run.wav", 0, 0.6);
