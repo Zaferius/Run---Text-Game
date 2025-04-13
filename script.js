@@ -335,9 +335,17 @@ function startIntro() {
     ];
 
     //startDecisionCountdown(1000);
-    writeSystemSequence(intro, 25, 800);
-    //writeSystemSequence(intro, 1, 1);
+    //writeSystemSequence(intro, 25, 800);
+    writeSystemSequence(intro, 1, 1);
 }
+
+function getPossibleCommandsForStage(stage) {
+    if (stage === 0) return ["makas al", "makasi ikiye ayir"];
+    if (stage === 1) return ["kapiyi ac", "koridora cik"];
+    if (stage === 2) return ["kac", "bekle", "bagir"];
+    if (stage === 3) return ["sol kapi", "sag kapi"];
+    return ["durum", "gonca"];
+  }
 
 const commands = [
     {
@@ -489,7 +497,7 @@ const commands = [
                 writeSystem("Seni çok seviyorum ❤️");
                 return true;
             } else if (lower.includes("karpat")) {
-                writeSystem("Tarlayaaa");
+                writeSystem("Tarlaya");
                 return true;
             }
         }
@@ -609,6 +617,97 @@ input.addEventListener("keydown", function (e) {
 
         handleCommand(command);
     }
+});
+
+const ghostListBottom = document.getElementById("ghost-list-bottom");
+let ghostSuggestions = [];
+let selectedSuggestionIndex = -1;
+
+input.addEventListener("input", function () {
+    const value = input.value.toLowerCase().trim();
+    ghostListBottom.innerHTML = "";
+    ghostSuggestions = [];
+    selectedSuggestionIndex = -1;
+
+    if (value.length === 0) return;
+
+    const possible = getPossibleCommandsForStage(gameState.stage);
+    ghostSuggestions = possible.filter(cmd => cmd.startsWith(value));
+
+    ghostSuggestions.forEach((text, index) => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        li.classList.add("ghost-item");
+        if (index === 0) li.classList.add("selected");
+
+        li.addEventListener("click", () => {
+            input.value = text;
+            ghostListBottom.innerHTML = "";
+            selectedSuggestionIndex = -1;
+            input.focus();
+        });
+
+        ghostListBottom.appendChild(li);
+    });
+});
+
+let suggestionJustSelected = false;
+
+
+input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && inputEnabled) {
+        const command = input.value.trim().toLowerCase();
+        if (command.length > 0) {
+            writePlayer(command);
+            input.value = "";
+            ghostListBottom.innerHTML = "";
+            handleCommand(command);
+        }
+    }
+});
+
+input.addEventListener("focus", function () {
+    const value = input.value.toLowerCase().trim();
+    ghostListBottom.innerHTML = "";
+    ghostSuggestions = [];
+    selectedSuggestionIndex = -1;
+
+    if (value.length === 0) return;
+
+    const possible = getPossibleCommandsForStage(gameState.stage);
+    ghostSuggestions = possible.filter(cmd => cmd.startsWith(value));
+
+    ghostSuggestions.forEach((text, index) => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        li.classList.add("ghost-item");
+        if (index === 0) li.classList.add("selected");
+
+        li.addEventListener("click", () => {
+            input.value = text;
+            ghostListBottom.innerHTML = "";
+            selectedSuggestionIndex = -1;
+            input.focus();
+        });
+
+        ghostListBottom.appendChild(li);
+    });
+});
+
+
+function updateGhostSelection() {
+    const items = ghostListBottom.querySelectorAll(".ghost-item");
+    items.forEach((item, idx) => {
+        item.classList.toggle("selected", idx === selectedSuggestionIndex);
+    });
+}
+
+input.addEventListener("blur", () => {
+    setTimeout(() => {
+        ghostListBottom.innerHTML = "";
+        ghostSuggestions = [];
+        selectedSuggestionIndex = -1;
+    }, 100); // tıklamayı kaçırmamak için minik gecikme
 });
 
 function triggerGameOverScreen() {

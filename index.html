@@ -21,10 +21,14 @@
     <!-- Geçiş efekti -->
     <div id="fade"></div>
 
-    <!-- Oyun ekranı -->
-    <div id="game-screen" style="display: none;">
+     <!-- Oyun ekranı -->
+     <div id="game-screen" style="display: none;">
         <div id="output"></div>
-        <input type="text" id="input" autocomplete="off" autofocus />
+
+        <div class="input-wrapper">
+            <input type="text" id="input" autocomplete="off" autofocus />
+            <ul id="ghost-list-bottom" class="ghost-list"></ul>
+        </div>
     </div>
 
     <div id="gameover-screen" style="display: none;">
