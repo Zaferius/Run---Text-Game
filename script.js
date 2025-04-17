@@ -1,4 +1,3 @@
-const input = document.getElementById("input");
 const output = document.getElementById("output");
 const titleScreen = document.getElementById("title-screen");
 const gameScreen = document.getElementById("game-screen");
@@ -92,21 +91,6 @@ const assetsToPreload = [
     });
   });
 
-// Input kontrolü
-let inputEnabled = true;
-let visualShowing = false;
-
-function disableInput() {
-    input.disabled = true;
-    inputEnabled = false;
-}
-
-function enableInput() {
-    if(visualShowing) return;
-    input.disabled = false;
-    inputEnabled = true;
-    input.focus();
-}
 
 let gameStarted = false;
 
@@ -124,7 +108,6 @@ startButton.addEventListener("click", () => {
         fade.style.opacity = 0;
         titleScreen.style.display = "none";
         gameScreen.style.display = "block";
-        input.focus();
         startAmbientMusic("sounds/ambient.mp3");
         startIntro();
     }, 2000);
@@ -310,15 +293,6 @@ const keywordColorsConfig = {
     "kan": { stage: 2, class: "keyword-red" }
 };
 
-// === Bilinmeyen komut cevaplari ===
-const unknownCommandResponses = [
-    "Bu komutu anlayamadim.",
-    "Ne? tekrar dene.",
-    "Yapamazsin öyle bir sey.",
-    "Bunu yapamazsin.",
-    "Sacmalama.",
-    "Hayir, bunu yapamazsin."
-];
 
 // === Giris Hikayesi ===
 function startIntro() {
@@ -335,8 +309,15 @@ function startIntro() {
     ];
 
     //startDecisionCountdown(1000);
-    writeSystemSequence(intro, 25, 800);
+    //writeSystemSequence(intro, 25, 800);
     //writeSystemSequence(intro, 1, 1);
+
+    writeSystemSequence(intro, 1, 1, null, () => {
+        showChoices([
+            { text: "Makası al", onSelect: () => handleCommand("makasi al") },
+            { text: "Çevrene bak", onSelect: () => handleCommand("cevrende ne var") }
+        ]);
+    });
 }
 
 const commands = [
@@ -570,7 +551,7 @@ function writeSystem(text, speed = 35, onComplete = null) {
 
 
 
-function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500, onLine = null) {
+function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500, onLine = null, onComplete = null) {
     disableInput();
     let index = 0;
 
@@ -583,33 +564,13 @@ function writeSystemSequence(lines, speed = 35, delayBetweenLines = 1500, onLine
                 setTimeout(writeNextLine, delayBetweenLines);
             });
         } else {
-            enableInput();
+            if (onComplete) onComplete(); // 🔥 tamamlandığında çağır
+            else enableInput();
         }
     }
 
     writeNextLine();
 }
-
-
-// === Oyuncu Yazisi ===
-function writePlayer(text) {
-    const line = document.createElement("div");
-    line.classList.add("player-input");
-    line.innerText = "> " + text;
-    output.appendChild(line);
-    window.scrollTo(0, document.body.scrollHeight);
-}
-
-// === Input Dinleme ===
-input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && inputEnabled) {
-        const command = input.value.trim().toLowerCase();
-        writePlayer(command);
-        input.value = "";
-
-        handleCommand(command);
-    }
-});
 
 function triggerGameOverScreen() {
     const gameOver = document.getElementById("gameover-screen");
@@ -617,7 +578,6 @@ function triggerGameOverScreen() {
     // Tüm oyun ekranını karart
     document.getElementById("game-screen").style.display = "none";
     document.getElementById("visual-overlay").style.display = "none";
-    input.blur(); // input'u da devre dışı bırak
     stopAmbientMusic();
 
     setTimeout(() => {
@@ -671,3 +631,31 @@ function cancelDecisionCountdown() {
     const vignette = document.getElementById("vignette-timer");
     vignette.style.opacity = 0;
 }
+
+const choiceContainer = document.getElementById("choice-buttons");
+
+// Seçenekleri göster
+function showChoices(choices) {
+    disableInput(); // inputu kapat
+    choiceContainer.innerHTML = "";
+    choiceContainer.style.display = "flex";
+
+    choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.classList.add("choice-button");
+        btn.textContent = choice.text;
+        btn.onclick = () => {
+            hideChoices();
+            writePlayer(choice.text);
+            choice.onSelect();
+        };
+        choiceContainer.appendChild(btn);
+    });
+}
+
+// Seçenekleri gizle
+function hideChoices() {
+    choiceContainer.innerHTML = "";
+    choiceContainer.style.display = "none";
+}
+

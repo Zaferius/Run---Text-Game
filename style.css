@@ -231,6 +231,29 @@ h1 {
     background: red;
     color: black;
   }
+
+  #choice-buttons {
+    margin-top: 20px;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    display: flex;
+}
+
+.choice-button {
+    padding: 10px 18px;
+    font-size: 16px;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.choice-button:hover {
+    background-color: white;
+    color: black;
+}
   
   @keyframes fadeInText {
     to { opacity: 1; }
